@@ -1,6 +1,3 @@
 ﻿  Main.cpp
-d:\github\arraytobmp\arraytobmp\arraytobmp.h(186): warning C4141: "inline": mehrmals verwendet
-d:\github\arraytobmp\arraytobmp\arraytobmp.h(43): warning C4018: ">=": Konflikt zwischen "signed" und "unsigned"
-d:\github\arraytobmp\arraytobmp\arraytobmp.h(69): warning C4267: "=": Konvertierung von "size_t" nach "byte_t", Datenverlust möglich
   ArrayToBMP.vcxproj -> D:\GitHub\arrayToBMP\Debug\ArrayToBMP.exe
   ArrayToBMP.vcxproj -> D:\GitHub\arrayToBMP\Debug\ArrayToBMP.pdb (Partial PDB)

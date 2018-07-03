@@ -31,16 +31,16 @@ private:
 	static const uint16_t BI_PLANES = 0x01;
 	static const uint16_t BI_BITCOUNT = 0x18;
 	static const uint32_t BI_COMPRESSION = BI_RGB;
-	static const uint32_t BI_XPELSPERMETER = 0x0B13;
-	static const uint32_t BI_YPELSPERMETER = 0x0B13;
+	static const uint32_t BI_XPELSPERMETER = 0x0000;
+	static const uint32_t BI_YPELSPERMETER = 0x0000;
 	static const uint32_t BI_CLRUSED = BI_BITCOUNT == 1 ? 0 : BI_BITCOUNT == 4 || BI_BITCOUNT == 8 ? COLORTABLE_ENTRIES : 0x00;
 	static const uint32_t BI_CLRIMPORTANT = 0x00;
 
 
 	static inline size_t bytesNeeded(size_t data)
 	{
-		int s = 1;
-		while (s < 8 && data >= (1L << (s * 8))) 
+		size_t s = 1;
+		while (s < 8 && data >= (size_t)(1L << (s * 8))) 
 			s++;
 		return s;
 		
@@ -66,7 +66,7 @@ private:
 		//little endian
 		for (size_t i = at; i < length + at; i++)
 		{
-			destArray[i] = (data & bitMask) >> (currentPosition * 8);
+			destArray[i] = (byte_t)((data & bitMask) >> (currentPosition * 8));
 			currentPosition++;
 			bitMask <<= 8;
 		}
@@ -76,10 +76,10 @@ private:
 	static inline void writeFileHeader(byte_t* destArray,size_t fileSize)
 	{
 
-		writeToByteArray(BF_TYPE,		0x00, destArray);			// bfType
-		writeToByteArray(fileSize,		0x02, destArray);			// bfSize
-		writeToByteArray(BF_RESERVED,   0x06, destArray);			// bfReserved	
-		writeToByteArray(BF_OFFBITS,	0x0A, destArray);			// bfOffbits
+		writeToByteArray(BF_TYPE,		0x00, destArray);		// bfType
+		writeToByteArray(fileSize,		0x02, destArray);		// bfSize
+		writeToByteArray(BF_RESERVED,   0x06, destArray);		// bfReserved	
+		writeToByteArray(BF_OFFBITS,	0x0A, destArray);		// bfOffbits
 
 	}
 	static inline void writeInfoHeader(byte_t* destArray,size_t width, size_t height)
@@ -110,8 +110,9 @@ private:
 		size_t paddingOffset = 0;
 
 		size_t i; 
-		for (i = BF_OFFBITS; i <= BF_OFFBITS + BI_IMAGESIZE; i = i + 3)
+		for (i = BF_OFFBITS; i + paddingOffset + 2 < BF_OFFBITS + BI_IMAGESIZE && index < width*height; i = i + 3)
 		{
+
 			if (writtenBytes % 6 == 0 && writtenBytes != 0)
 			{
 				//Two bytes padding for every 6 bytes written. To allign memory
@@ -123,10 +124,9 @@ private:
 			byte_t R = (color & 0xFF0000) >> 16;
 			byte_t G = (color & 0x00FF00) >> 8;
 			byte_t B = (color & 0x0000FF);
-			destArray[paddingOffset + i + 2]	 = B;
+			destArray[paddingOffset + i + 2] = B;
 			destArray[paddingOffset + i + 1] = G;
-			destArray[paddingOffset + i] = R;	
-
+			destArray[paddingOffset + i]     = R;	
 			writtenBytes += 3;
 		}
 
@@ -183,15 +183,15 @@ public:
 		return ret;
 	}
 
-	static inline inline int ArrayToBMP(rgb24_t* colorArray, size_t width, size_t height, const char* path)
+	static inline int ArrayToBMP(rgb24_t* colorArray, size_t width, size_t height, const char* path)
 	{
 		const size_t imageSizeWithoutPadding = (width * height * 3);
 		const size_t padding = getPaddingByteCount(imageSizeWithoutPadding);
 		const size_t BI_IMAGESIZE = imageSizeWithoutPadding + padding;
-		size_t arrayLength = width * height;
-		size_t fileHeaderSize = 14;
-		size_t infoHeaderSize = 40;
-		size_t fileSize = infoHeaderSize + fileHeaderSize + BI_IMAGESIZE;
+		const size_t arrayLength = width * height;
+		const size_t fileHeaderSize = 14;
+		const size_t infoHeaderSize = 40;
+		const size_t fileSize = infoHeaderSize + fileHeaderSize + BI_IMAGESIZE;
 		byte_t* bitmap = new byte_t[fileSize];
 		for (size_t i = 0; i < fileSize; i++)
 		{
@@ -204,7 +204,7 @@ public:
 		writeImageData(bitmap, colorArray, width, height);
 		writeOut(bitmap, fileSize, path);
 
-		//delete[] bitmap;
+		delete[] bitmap;
 		return 0;
 	}
 };

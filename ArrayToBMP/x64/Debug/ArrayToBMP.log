@@ -1,0 +1,4 @@
+﻿  Main.cpp
+d:\github\arraytobmp\arraytobmp\arraytobmp.h(43): warning C4334: "<<": Das Ergebnis der 32-Bit-Verschiebung wurde implizit in 64 Bits konvertiert. (War eine 64-Bit-Verschiebung vorgesehen?)
+  ArrayToBMP.vcxproj -> D:\GitHub\arrayToBMP\x64\Debug\ArrayToBMP.exe
+  ArrayToBMP.vcxproj -> D:\GitHub\arrayToBMP\x64\Debug\ArrayToBMP.pdb (Partial PDB)
