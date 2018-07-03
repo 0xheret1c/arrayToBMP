@@ -2,8 +2,8 @@
 
 int main()
 {
-	rgb24_t colors[] = { 0x0000FF, 0x00FF00,
-						 0xFF0000, 0xFFFFFF
+	rgb24_t colors[] = { 0x0000FF, 0xFFFFFF,
+						 0xFF0000, 0x00FF00
 				};
 
 	

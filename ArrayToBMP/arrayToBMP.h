@@ -25,7 +25,7 @@ private:
 	static const uint32_t INFOHEADER_SIZE = 0x28;
 
 	/*BITMAPFILEHEADER*/
-	static const uint16_t BF_TYPE = 0x424D;
+	static const uint16_t BF_TYPE = 0x4D42;
 	static const uint32_t BF_RESERVED = 0x00;
 	static const uint32_t BF_OFFBITS = FILEHEADER_SIZE + INFOHEADER_SIZE;
 	
@@ -33,8 +33,8 @@ private:
 	static const uint16_t BI_PLANES = 0x01;
 	static const uint16_t BI_BITCOUNT = 0x18;
 	static const uint32_t BI_COMPRESSION = BI_RGB;
-	static const uint32_t BI_XPELSPERMETER = 0x00;
-	static const uint32_t BI_YPELSPERMETER = 0x00;
+	static const uint32_t BI_XPELSPERMETER = 0x0B13;
+	static const uint32_t BI_YPELSPERMETER = 0x0B13;
 	static const uint32_t BI_CLRUSED = BI_BITCOUNT == 1 ? 0 : BI_BITCOUNT == 4 || BI_BITCOUNT == 8 ? COLORTABLE_ENTRIES : 0x00;
 	static const uint32_t BI_CLRIMPORTANT = 0x00;
 
@@ -106,29 +106,41 @@ private:
 	static inline void writeImageData(byte_t* destArray, rgb24_t* colorArray, size_t width, size_t height)
 	{
 		const size_t imageSizeWithoutPadding = (width * height * 3);
-		const size_t BI_IMAGESIZE = imageSizeWithoutPadding + getPaddingByteCount(imageSizeWithoutPadding);
+		const size_t paddingNeeded = getPaddingByteCount(imageSizeWithoutPadding);
+		const size_t BI_IMAGESIZE = imageSizeWithoutPadding + paddingNeeded;
 		size_t index = 0;
 		size_t writtenBytes = 0;
 		size_t paddingOffset = 0;
-		for (size_t i = BF_OFFBITS; i < BF_OFFBITS + BI_IMAGESIZE; i = i + 3)
+		/*if (imageSizeWithoutPadding != BI_IMAGESIZE)
 		{
-			if (writtenBytes % 6 == 0)
+			destArray[0] = 0x00;
+			destArray[1] = 0x00;
+			paddingOffset += 2;
+		}*/
+		size_t i; 
+		for (i = BF_OFFBITS; i <= BF_OFFBITS + BI_IMAGESIZE; i = i + 3)
+		{
+			if (writtenBytes % 6 == 0 && writtenBytes != 0)
 			{
 				//Two bytes padding for every 6 bytes written. To allign memory
 				destArray[paddingOffset + i] = 0x00;
 				destArray[paddingOffset + i + 1] = 0x00;
 				paddingOffset += 2;
+				std::cout << "Wrote Padding!" << std::endl;
+
 			}
 			rgb24_t color = colorArray[index++];
 			byte_t R = (color & 0xFF0000) >> 16;
 			byte_t G = (color & 0x00FF00) >> 8;
 			byte_t B = (color & 0x0000FF);
-			destArray[paddingOffset + i]	 = B;
+			destArray[paddingOffset + i + 2]	 = B;
 			destArray[paddingOffset + i + 1] = G;
-			destArray[paddingOffset + i + 2] = R;
+			destArray[paddingOffset + i] = R;	
+
+			std::cout<<"Wrote " << std::hex << (size_t)B<< " " << std::hex << (size_t)G << " " << std::hex << (size_t)R << std::endl;
 			writtenBytes += 3;
-			std::cout << "Wrote R:" << std::hex << (size_t)R << " G:" << std::hex << (size_t)G << " B:" << std::hex << (size_t)B << std::endl;
 		}
+
 	}
 
 	/* Functions for writing files byte-wise */
