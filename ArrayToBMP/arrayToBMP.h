@@ -1,8 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-//#ifdef __ARRAY_TO_BMP_DEFINED
-#define __ARRAY_TO_BMP_DEFINED
 
 /* typedefs */
 typedef unsigned char byte_t;
@@ -69,7 +67,6 @@ private:
 		for (size_t i = at; i < length + at; i++)
 		{
 			destArray[i] = (data & bitMask) >> (currentPosition * 8);
-			std::cout << std::hex << (size_t)destArray[i] << std::endl;
 			currentPosition++;
 			bitMask <<= 8;
 		}
@@ -111,12 +108,7 @@ private:
 		size_t index = 0;
 		size_t writtenBytes = 0;
 		size_t paddingOffset = 0;
-		/*if (imageSizeWithoutPadding != BI_IMAGESIZE)
-		{
-			destArray[0] = 0x00;
-			destArray[1] = 0x00;
-			paddingOffset += 2;
-		}*/
+
 		size_t i; 
 		for (i = BF_OFFBITS; i <= BF_OFFBITS + BI_IMAGESIZE; i = i + 3)
 		{
@@ -126,8 +118,6 @@ private:
 				destArray[paddingOffset + i] = 0x00;
 				destArray[paddingOffset + i + 1] = 0x00;
 				paddingOffset += 2;
-				std::cout << "Wrote Padding!" << std::endl;
-
 			}
 			rgb24_t color = colorArray[index++];
 			byte_t R = (color & 0xFF0000) >> 16;
@@ -137,7 +127,6 @@ private:
 			destArray[paddingOffset + i + 1] = G;
 			destArray[paddingOffset + i] = R;	
 
-			std::cout<<"Wrote " << std::hex << (size_t)B<< " " << std::hex << (size_t)G << " " << std::hex << (size_t)R << std::endl;
 			writtenBytes += 3;
 		}
 
@@ -174,7 +163,6 @@ private:
 	static inline void writeOut(byte_t* toWrite,size_t length,const char* path)
 	{
 		std::string correctedPath = correctFileName(path);
-		std::cout << correctedPath << std::endl;
 		std::ofstream fileStream;
 		fileStream.open(correctedPath,std::ios::binary);
 		for (size_t i = 0; i < length; i++)
@@ -215,9 +203,8 @@ public:
 		writeInfoHeader(bitmap, width, height);
 		writeImageData(bitmap, colorArray, width, height);
 		writeOut(bitmap, fileSize, path);
+
 		//delete[] bitmap;
-		std::cout << "finished" << std::endl;
 		return 0;
 	}
 };
-//#endif
